@@ -3,10 +3,13 @@ package com.henz.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,6 +45,7 @@ public class StockController {
 			if(STOCK_DB.containsKey(company)) {
 				stock = STOCK_DB.get(company);
 			}else {
+				// the GlobalExceptionHandler catches all RuntimeExceptions, like IllegalStateException
 				throw new IllegalStateException("sorry we do not have stock information for company "+company);
 			}
 			
@@ -63,7 +67,13 @@ public class StockController {
 		 * 
 		 * */
 		@PostMapping("/stock/{company}")
-		public void storeInfo(@PathVariable("company") String company, @Validated @RequestBody Stock stock) {
+		public void storeInfo(@PathVariable("company") String company, @Valid @RequestBody Stock stock) { //use @Valid or @Validated
+			STOCK_DB.put(company, stock);
+		}
+		
+		// if using post to update, there will be an update on existing record + new record (duplicate)
+		@PutMapping("/stock/{company}")
+		public void updateInfo(@PathVariable("company") String company, @Validated @RequestBody Stock stock) {
 			STOCK_DB.put(company, stock);
 		}
 
